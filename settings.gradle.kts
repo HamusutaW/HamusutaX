@@ -16,8 +16,13 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "HamusutaX"
-include(":app")
+include(":core")
+include(":android")
+include(":okhttp")
+include(":hash-extended")
+include(":compose")
