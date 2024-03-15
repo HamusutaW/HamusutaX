@@ -6,7 +6,4 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinPluginSerialization) apply false
     alias(libs.plugins.googleDevtoolsKsp) apply false
     alias(libs.plugins.androidLibrary) apply false
-    `maven-publish` apply true
 }
-
-group = "com.github.HamusutaW"

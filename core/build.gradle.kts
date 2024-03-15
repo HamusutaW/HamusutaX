@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java-library")
+    id("maven-publish")
     alias(libs.plugins.jetbrainsKotlinJvm)
     alias(libs.plugins.jetbrainsKotlinPluginSerialization)
 }
@@ -23,4 +24,12 @@ tasks.withType<KotlinCompile> {
         "-opt-in=kotlin.ExperimentalUnsignedTypes",
         "-opt-in=kotlin.io.encoding.ExperimentalEncodingApi"
     )
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
 }

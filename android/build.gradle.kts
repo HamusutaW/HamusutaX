@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("maven-publish")
 }
 
 android {
@@ -58,4 +59,14 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs += listOf(
         "-opt-in=kotlin.contracts.ExperimentalContracts"
     )
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                artifact(tasks["bundleReleaseAar"])
+            }
+        }
+    }
 }

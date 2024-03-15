@@ -1,5 +1,6 @@
 plugins {
     id("java-library")
+    id("maven-publish")
     alias(libs.plugins.jetbrainsKotlinJvm)
 }
 
@@ -10,4 +11,12 @@ java {
 
 dependencies {
     api(libs.bcprov)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
 }

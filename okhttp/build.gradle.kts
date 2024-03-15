@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java-library")
+    id("maven-publish")
     alias(libs.plugins.jetbrainsKotlinJvm)
     alias(libs.plugins.jetbrainsKotlinPluginSerialization)
 }
@@ -22,4 +23,12 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs += listOf(
         "-opt-in=kotlin.contracts.ExperimentalContracts"
     )
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
 }
