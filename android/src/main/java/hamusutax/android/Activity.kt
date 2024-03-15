@@ -6,6 +6,7 @@ import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import androidx.core.net.toUri
+import hamusutax.android.intent.buildIntent
 
 fun Activity.startActivity(uri: Uri) =
     startActivity(Intent(Intent.ACTION_VIEW, uri))

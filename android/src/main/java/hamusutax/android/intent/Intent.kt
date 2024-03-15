@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package hamusutax.android
+package hamusutax.android.intent
 
 import android.content.Context
 import android.content.Intent
