@@ -4,7 +4,7 @@ pluginManagement {
             content {
                 includeGroupByRegex("com\\.android.*")
                 includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
+                includeGroupByRegex("androidx\\..*")
             }
         }
         mavenCentral()
@@ -16,8 +16,18 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("https://jitpack.io")
+            content {
+                includeGroupByRegex("com\\.github\\..*")
+            }
+        }
     }
 }
 
 rootProject.name = "HamusutaX"
-include(":app")
+include(":core")
+include(":android")
+include(":okhttp")
+include(":hash-extended")
+include(":compose")
