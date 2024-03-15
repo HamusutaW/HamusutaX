@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.jetbrainsKotlinPluginSerialization)
     id("maven-publish")
 }
 
@@ -53,6 +54,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.kotlinx.io)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.okhttp)
 }
 
 tasks.withType<KotlinCompile> {

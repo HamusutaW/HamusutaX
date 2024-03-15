@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -31,6 +33,12 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.10"
+    }
 }
 
 dependencies {
@@ -50,6 +58,15 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    api(libs.androidx.animation.graphics.android)
+    api(libs.androidx.material.icons.extended)
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.freeCompilerArgs += listOf(
+        "-opt-in=androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi",
+        "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
+    )
 }
 
 afterEvaluate {
