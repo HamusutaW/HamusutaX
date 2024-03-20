@@ -5,8 +5,6 @@ import hamusutax.okhttp.addQueryParameters
 import hamusutax.okhttp.buildFormBody
 import hamusutax.okhttp.buildRequest
 import hamusutax.okhttp.emptyFormBody
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -16,12 +14,13 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 
 /**
  * @param data [String] 或 [Map]
  * @param json [String]、[JsonElement] 或其它可被 [Json.encodeToString] 序列化的对象
  */
-suspend inline fun <reified T> OkHttpClient.post(
+inline fun <reified T> OkHttpClient.post(
     url: String,
     data: Any? = null,
     json: T? = null,
@@ -55,24 +54,23 @@ suspend inline fun <reified T> OkHttpClient.post(
         cookies = cookies
     )
 
-suspend fun OkHttpClient.post(
+fun OkHttpClient.post(
     url: String,
     data: RequestBody = emptyFormBody(),
     params: Map<String, Any?> = emptyMap(),
     headers: Map<String, Any> = emptyMap(),
     cookies: Map<String, Any> = emptyMap()
-) =
-    withContext(Dispatchers.IO) {
-        val httpUrl = url.toHttpUrl().newBuilder()
-            .addQueryParameters(params.mapValues { it.value?.toString() })
-            .build()
-        val finalHeaders = headers.mapValues { it.value.toString() }.toMutableMap()
-        if (cookies.isNotEmpty())
-            finalHeaders["Cookie"] = cookies.map { "${it.key}=${it.value}" }.joinToString("; ")
-        val request = buildRequest {
-            url(httpUrl)
-            headers(finalHeaders.toHeaders())
-            post(data)
-        }
-        newCall(request).execute()
+): Response {
+    val httpUrl = url.toHttpUrl().newBuilder()
+        .addQueryParameters(params.mapValues { it.value?.toString() })
+        .build()
+    val finalHeaders = headers.mapValues { it.value.toString() }.toMutableMap()
+    if (cookies.isNotEmpty())
+        finalHeaders["Cookie"] = cookies.map { "${it.key}=${it.value}" }.joinToString("; ")
+    val request = buildRequest {
+        url(httpUrl)
+        headers(finalHeaders.toHeaders())
+        post(data)
     }
+    return newCall(request).execute()
+}
