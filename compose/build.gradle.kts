@@ -39,6 +39,11 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.androidx.compose.compiler.get().version
     }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -69,11 +74,11 @@ tasks.withType<KotlinCompile> {
     )
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                artifact(tasks["bundleReleaseAar"])
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate {
+                from(components["release"])
             }
         }
     }

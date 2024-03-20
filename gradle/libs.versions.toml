@@ -60,6 +60,7 @@ jsoupxpath = "2.5.3"
 
 # Utils
 hutoolBom = "5.8.23"
+materialVersion = "1.11.0"
 
 [libraries]
 androidx-compose-compiler = { group = "androidx.compose.compiler", name = "compiler", version.ref = "composeCompiler"}
@@ -181,6 +182,7 @@ hutool-system = { group = "cn.hutool", name = "hutool-system" }
 hutool-captcha = { group = "cn.hutool", name = "hutool-captcha" }
 hutool-socket = { group = "cn.hutool", name = "hutool-socket" }
 hutool-jwt = { group = "cn.hutool", name = "hutool-jwt" }
+material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
