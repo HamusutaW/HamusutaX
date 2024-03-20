@@ -34,6 +34,11 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -64,11 +69,11 @@ tasks.withType<KotlinCompile> {
     )
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            create<MavenPublication>("mavenJava") {
-                artifact(tasks["bundleReleaseAar"])
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate {
+                from(components["release"])
             }
         }
     }

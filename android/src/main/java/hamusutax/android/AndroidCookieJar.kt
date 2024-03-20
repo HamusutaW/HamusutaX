@@ -6,39 +6,44 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 
-val cookieManager = CookieManager.getInstance()!!
+val cookieManager by lazy { CookieManager.getInstance()!! }
 
+/**
+ * 来自 [Mihon](https://github.com/mihonapp/mihon/blob/main/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/AndroidCookieJar.kt)
+ */
 class AndroidCookieJar : CookieJar {
-    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
-        val urlString = url.toString()
-        cookies.forEach { cookieManager.setCookie(urlString, it.toString()) }
-    }
+    override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) =
+        cookies.forEach {
+            cookieManager.setCookie(url.toString(), it.toString())
+        }
 
-    override fun loadForRequest(url: HttpUrl): List<Cookie> = get(url)
+    override fun loadForRequest(url: HttpUrl) =
+        get(url)
 
-    fun get(url: HttpUrl): List<Cookie> {
+    operator fun get(url: HttpUrl): List<Cookie> {
         val cookies = cookieManager.getCookie(url.toString())
         return if (cookies != null && cookies.isNotEmpty())
-            cookies.split(";").mapNotNull { Cookie.parse(url, it) }
+            cookies.split("; ").mapNotNull { Cookie.parse(url, it) }
         else emptyList()
     }
 
-    fun remove(url: HttpUrl, cookieNames: Set<String>? = null, maxAge: Int = -1): Int {
+    operator fun set(url: HttpUrl, cookies: List<Cookie>) =
+        saveFromResponse(url, cookies)
+
+    /**
+     * 返回值
+     */
+    fun remove(url: HttpUrl, cookieNames: List<String>? = null): Int {
         val urlString = url.toString()
+        // 格式：key1=value1; key2=value2; key3=value3
         val cookies = cookieManager.getCookie(urlString) ?: return 0
-
-        fun List<String>.filterNames(): List<String> =
-            if (cookieNames != null) this.filter { it in cookieNames }
-            else this
-
-        return cookies.split(";")
+        return cookies.split("; ")
             .map { it.substringBefore("=") }
-            .filterNames()
-            .onEach { cookieManager.setCookie(urlString, "$it=;Max-Age=$maxAge") }
+            .filter { if (cookieNames != null) it in cookieNames else true }
+            .onEach { cookieManager.setCookie(urlString, "$it=;Max-Age=-1") }
             .count()
     }
 
-    fun removeAll() {
-        cookieManager.removeAllCookies {}
-    }
+    fun clear() =
+        cookieManager.removeAllCookies(null)
 }
