@@ -1,5 +1,5 @@
 @file:Suppress("unused")
-package hamusutax.android
+package hamusutax.okhttp.cookiejar
 
 import android.webkit.CookieManager
 import okhttp3.Cookie
@@ -11,21 +11,20 @@ val cookieManager by lazy { CookieManager.getInstance()!! }
 /**
  * 来自 [Mihon](https://github.com/mihonapp/mihon/blob/main/core/common/src/main/kotlin/eu/kanade/tachiyomi/network/AndroidCookieJar.kt)
  */
-class AndroidCookieJar : CookieJar {
+class WebViewCookieJar : CookieJar {
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) =
         cookies.forEach { cookieManager.setCookie(url.toString(), it.toString()) }
 
-    override fun loadForRequest(url: HttpUrl) = get(url)
-
-    operator fun get(url: HttpUrl): List<Cookie> {
+    override fun loadForRequest(url: HttpUrl): List<Cookie> {
         val cookies = cookieManager.getCookie(url.toString())
         return if (cookies != null && cookies.isNotEmpty())
             cookies.split("; ").mapNotNull { Cookie.parse(url, it) }
         else emptyList()
     }
 
-    operator fun set(url: HttpUrl, cookies: List<Cookie>) =
-        saveFromResponse(url, cookies)
+    operator fun get(url: HttpUrl) = loadForRequest(url)
+
+    operator fun set(url: HttpUrl, cookies: List<Cookie>) = saveFromResponse(url, cookies)
 
     fun removeAtEndOfSession(url: HttpUrl, cookieNames: List<String>? = null) =
         remove(url, cookieNames, -1)

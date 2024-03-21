@@ -15,8 +15,13 @@ import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 
-@Serializable(PersistentCookieJarSerializer::class)
-open class PersistentCookieJar internal constructor(
+/**
+ * 存储于内存中的 CookieJar
+ *
+ * 可使用 [kotlinx.serialization] 进行持久化
+ */
+@Serializable(MemoryCookieJarSerializer::class)
+open class MemoryCookieJar internal constructor(
     cookies: Map<String, List<Cookie>> = emptyMap()
 ): CookieJar {
     val cookieStore = cookies.toMutableMap()
@@ -28,26 +33,33 @@ open class PersistentCookieJar internal constructor(
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         cookieStore[url.host] =  ((cookieStore[url.host] ?: emptyList()) + cookies)
             .filter { it.expiresAt > System.currentTimeMillis() }
-            .associateBy { Triple(it.domain, it.name, it.path) }
-            .map { it.value }
+            .reversed() // 两次翻转以保留靠后的 Cookies
+            .distinctBy { Triple(it.domain, it.name, it.path) }
+            .reversed()
     }
+
+    operator fun get(url: HttpUrl) = loadForRequest(url)
+
+    operator fun set(url: HttpUrl, cookies: List<Cookie>) = saveFromResponse(url, cookies)
+
+    fun clear() = cookieStore.clear()
 
     override fun toString() = Json.encodeToString(this)
 }
 
-object PersistentCookieJarSerializer: KSerializer<PersistentCookieJar> {
+object MemoryCookieJarSerializer: KSerializer<MemoryCookieJar> {
     override val descriptor =
         PrimitiveSerialDescriptor("hamusutax.okhttp.PersistentCookieJar", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder) =
-        PersistentCookieJar(
+        MemoryCookieJar(
             decoder.decodeSerializableValue<Map<String, List<String>>>()
                 .mapValues { (host, cookies) ->
                     cookies.map { it.toCookie(host) }
                 }
         )
 
-    override fun serialize(encoder: Encoder, value: PersistentCookieJar) {
+    override fun serialize(encoder: Encoder, value: MemoryCookieJar) {
         encoder.encodeSerializableValue(value.cookieStore.mapValues { it.value.map { it.toString() } })
     }
 }
