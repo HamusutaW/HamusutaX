@@ -21,12 +21,14 @@ open class PersistentCookieJar internal constructor(
 ): CookieJar {
     val cookieStore = cookies.toMutableMap()
     override fun loadForRequest(url: HttpUrl) =
-        (cookieStore[url.host] ?: emptyList()).filter { it.expiresAt > System.currentTimeMillis() && it.matches(url) }
+        (cookieStore[url.host] ?: emptyList()).filter {
+            it.expiresAt > System.currentTimeMillis() && it.matches(url)
+        }
 
     override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
         cookieStore[url.host] =  ((cookieStore[url.host] ?: emptyList()) + cookies)
             .filter { it.expiresAt > System.currentTimeMillis() }
-            .associateBy { it.name to it.path }
+            .associateBy { Triple(it.domain, it.name, it.path) }
             .map { it.value }
     }
 

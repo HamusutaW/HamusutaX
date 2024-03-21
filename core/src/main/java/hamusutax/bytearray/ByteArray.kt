@@ -1,6 +1,10 @@
 @file:Suppress("unused")
 package hamusutax.bytearray
 
+/**
+ * 在字节序列前部填充
+ * @throws IllegalArgumentException 目标大小小于原大小
+ */
 fun ByteArray.padStart(newSize: Int, padByte: Byte = 0): ByteArray {
     require(newSize >= size) { "Target size is smaller than current size!" }
     return ByteArray(newSize - size).also {
@@ -8,6 +12,10 @@ fun ByteArray.padStart(newSize: Int, padByte: Byte = 0): ByteArray {
     } + this
 }
 
+/**
+ * 在字节序列尾部填充
+ * @throws IllegalArgumentException 目标大小小于原大小
+ */
 fun ByteArray.padEnd(newSize: Int, padByte: Byte = 0): ByteArray {
     require(newSize >= size) { "Target size is smaller than current size!" }
     return this + ByteArray(newSize - size).also {
@@ -15,6 +23,9 @@ fun ByteArray.padEnd(newSize: Int, padByte: Byte = 0): ByteArray {
     }
 }
 
+/**
+ * 将字节序列转为二进制字符串
+ */
 fun ByteArray.toBinaryString(): String =
     buildString {
         this@toBinaryString.forEach {
@@ -29,3 +40,11 @@ fun ByteArray.sliceArrayOrPadEnd(newSize: Int, padByte: Byte = 0) =
     if (newSize == size) this
     else if (newSize < size) sliceArray(0..<newSize)
     else padEnd(newSize, padByte)
+
+/**
+ * 展开字节序列
+ */
+fun List<ByteArray>.toByteArray() =
+    flatMap { it.asList() }.toByteArray()
+
+fun emptyByteArray() = ByteArray(0)

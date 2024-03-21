@@ -29,7 +29,7 @@ fun String.toCookieOrNull(httpUrl: HttpUrl) =
     Cookie.parse(httpUrl, this)
 
 /**
- * 将 Fiddler 格式的 Cookie 字符串转为 Map 形式
+ * 输入格式：key1=value1; key2=value2; key3=value3
  * @throws IllegalArgumentException 格式不正确时抛出异常
  */
 fun String.toCookieStringMap() =
