@@ -15,16 +15,16 @@ class BitTorrent {
     companion object {
         internal const val BLOCK_SIZE = 16 * 1024
 
+        @RequiresApi(33)
+        fun getPieces(bytes: ByteArray, pieceLength: Int = 256 * 1024, isPadding: Boolean = false) =
+            getPieces(bytes.inputStream(), pieceLength, isPadding)
+
         /**
          * 获取 BitTorrent V1 的 Pieces
          * @param pieceLength 分块大小，单位 Byte
          */
         @RequiresApi(33)
-        fun getPieces(
-            inputStream: InputStream,
-            pieceLength: Int = 256 * 1024,
-            isPadding: Boolean = false
-        ): ByteArray {
+        fun getPieces(inputStream: InputStream, pieceLength: Int = 256 * 1024, isPadding: Boolean = false): ByteArray {
             val pieces = ByteArrayOutputStream(20 * 500) // 每个 PIECE 占 20 字节，预留 500 块空间
             val buffer = ByteArrayOutputStream(pieceLength)
             while (true) {
@@ -43,6 +43,10 @@ class BitTorrent {
             return pieces.toByteArray()
         }
 
+        @RequiresApi(33)
+        fun getPiecesV2(bytes: ByteArray, pieceLength: Int = 256 * 1024) =
+            getPiecesV2(bytes.inputStream(), pieceLength)
+
         /**
          * 获取 BitTorrent V2 的 Pieces Root 与 Pieces
          * @param pieceLength 分块大小，单位 Byte
@@ -51,10 +55,7 @@ class BitTorrent {
          * 文件为空时 Pieces Root 为空；文件小于分块大小时 Pieces 为空
          */
         @RequiresApi(33)
-        fun getPiecesV2(
-            inputStream: InputStream,
-            pieceLength: Int = 256 * 1024
-        ): Pair<ByteArray, ByteArray> {
+        fun getPiecesV2(inputStream: InputStream, pieceLength: Int = 256 * 1024): Pair<ByteArray, ByteArray> {
             val blocksPerPiece = pieceLength / BLOCK_SIZE
             val pieces = mutableListOf<ByteArray>()
             while (true) {
@@ -102,9 +103,9 @@ class BitTorrent {
          * @param pieceLength 分块大小，单位 Byte
          */
         fun List<ByteArray>.piecesRoot(pieceLength: Int): ByteArray {
-            var list =
-                if (size.isPowerOf(2)) this
-                else this + List(size.nextPowerOf(2) - size) { pieceLength.paddingUnit }
+            var list = if (size.isPowerOf(2)) this
+            else this + List(size.nextPowerOf(2) - size) { pieceLength.paddingUnit }
+
             while (list.size > 1) {
                 list = list.chunked(2).map { (it[0] + it[1]).sha256() }
             }
