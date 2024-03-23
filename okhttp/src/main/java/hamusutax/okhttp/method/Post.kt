@@ -17,12 +17,38 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 
 /**
- * @param data [String] 或 [Map]
+ * @param data 未进行 URL 编码的 [String] 或 [Map]
+ */
+fun OkHttpClient.post(
+    url: String,
+    data: Any? = null,
+    params: Map<String, Any?> = emptyMap(),
+    headers: Map<String, Any> = emptyMap(),
+    cookies: Map<String, Any> = emptyMap()
+) =
+    post(
+        url = url,
+        params = params,
+        headers = headers,
+        data = when (data) {
+            is String -> data.toRequestBody()
+            is Map<*, *> -> {
+                buildFormBody {
+                    data.forEach { (key, value) ->
+                        add(key.toString(), value.toString())
+                    }
+                }
+            }
+            else -> throw IllegalArgumentException("Request data type is String or Map!")
+        },
+        cookies = cookies
+    )
+
+/**
  * @param json [String]、[JsonElement] 或其它可被 [Json.encodeToString] 序列化的对象
  */
 inline fun <reified T> OkHttpClient.post(
     url: String,
-    data: Any? = null,
     json: T? = null,
     params: Map<String, Any?> = emptyMap(),
     headers: Map<String, Any> = emptyMap(),
@@ -33,23 +59,11 @@ inline fun <reified T> OkHttpClient.post(
         url = url,
         params = params,
         headers = headers,
-        data = when {
-            data != null -> when (data) {
-                is String -> data.toRequestBody()
-                is Map<*, *> -> {
-                    buildFormBody {
-                        data.forEach { (key, value) ->
-                            add(key.toString(), value.toString())
-                        }
-                    }
-                }
-                else -> throw IllegalArgumentException("Request data type is String or Map!")
-            }
-            json != null -> when (json) {
-                is String -> json
-                else -> jsonParser.encodeToString<T>(json)
-            }.toRequestBody("application/json;charset=utf-8".toMediaType())
-            else -> emptyFormBody()
+        data = when (json) {
+            null -> emptyFormBody()
+            is String -> json.toRequestBody("application/json;charset=utf-8".toMediaType())
+            else -> jsonParser.encodeToString<T>(json)
+                .toRequestBody("application/json;charset=utf-8".toMediaType())
         },
         cookies = cookies
     )
